@@ -1,7 +1,9 @@
 package com.todo.softwaremind.mapper;
 
-import com.todo.softwaremind.model.Task;
-import com.todo.softwaremind.model.TaskDto;
+import com.todo.softwaremind.model.domain.Task;
+import com.todo.softwaremind.model.dto.TaskDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -24,7 +26,10 @@ public class TaskMapper {
                 .build();
     }
 
-    public List<TaskDto> mapTaskListToTaskDtoList(List<Task> tasks) {
-        return tasks.stream().map(this::mapTaskToDto).toList();
+    public Page<TaskDto> mapTaskPageToTaskDtoPage(Page<Task> tasks) {
+        List<TaskDto> list = tasks.getContent().stream()
+                .map(this::mapTaskToDto)
+                .toList();
+        return new PageImpl<>(list, tasks.getPageable(), tasks.getTotalElements());
     }
 }

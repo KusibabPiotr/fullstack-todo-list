@@ -1,4 +1,4 @@
-package com.todo.softwaremind.model;
+package com.todo.softwaremind.model.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,7 +21,7 @@ public class Task {
     private Long id;
     private String title;
     private String content;
-    @OneToOne(orphanRemoval = true)
+    @OneToOne(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
     private Details details;
 
     @Override

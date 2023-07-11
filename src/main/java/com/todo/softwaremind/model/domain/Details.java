@@ -1,9 +1,7 @@
-package com.todo.softwaremind.model;
+package com.todo.softwaremind.model.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.todo.softwaremind.model.Priority;
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -26,6 +24,9 @@ public class Details {
     private LocalDateTime created;
     private LocalDateTime timeline;
     private Priority priority;
+    @OneToOne
+    @JoinColumn(name = "task_id")
+    private Task task;
 
     @Override
     public boolean equals(Object o) {
