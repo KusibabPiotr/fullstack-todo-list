@@ -1,6 +1,7 @@
 package com.todo.softwaremind.service.impl;
 
 import com.todo.softwaremind.exception.TaskNotFoundException;
+import com.todo.softwaremind.mapper.DetailsMapper;
 import com.todo.softwaremind.mapper.TaskMapper;
 import com.todo.softwaremind.model.domain.Task;
 import com.todo.softwaremind.model.dto.TaskDto;
@@ -17,9 +18,11 @@ import org.springframework.stereotype.Service;
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final TaskMapper taskMapper;
+    private final DetailsMapper detailsMapper;
 
     public TaskDto createTask(TaskDto taskDto) {
-        return taskMapper.mapTaskToDto(taskRepository.save(taskMapper.mapDtoToTask(taskDto)));
+        Task save = taskRepository.save(taskMapper.mapDtoToTask(taskDto));
+        return taskMapper.mapTaskToDto(save);
     }
 
     public Page<TaskDto> getTasks(String sortBy, String sortDirection, Integer page, Integer pageSize) {
@@ -33,7 +36,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(TaskNotFoundException::new);
         taskFromDb.setTitle(taskDto.title());
         taskFromDb.setContent(taskDto.content());
-        taskFromDb.setDetails(taskDto.details());
+        taskFromDb.setDetails(detailsMapper.mapDetailsDtoToDetails(taskDto.details()));
         return taskDto;
     }
 

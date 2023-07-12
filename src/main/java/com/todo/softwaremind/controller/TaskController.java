@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/api/tasks")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class TaskController {
     private final TaskService taskService;
 
@@ -20,7 +21,7 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<Page<TaskDto>> getTasks(
-            @RequestParam(required = false, defaultValue = "title") String sortBy,
+            @RequestParam(required = false, defaultValue = "priority") String sortBy,
             @RequestParam(required = false, defaultValue = "ASC") String sortDirection,
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
@@ -37,5 +38,4 @@ public class TaskController {
         taskService.deleteTask(id);
         return ResponseEntity.status(200).build();
     }
-
 }

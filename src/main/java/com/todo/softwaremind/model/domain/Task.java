@@ -1,16 +1,17 @@
 package com.todo.softwaremind.model.domain;
 
+import com.todo.softwaremind.model.Priority;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Builder
 @Getter
 @Setter
 @ToString
-@RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -19,10 +20,13 @@ public class Task {
     @Id
     @GeneratedValue
     private Long id;
+    private UUID publicId;
     private String title;
     private String content;
-    @OneToOne(mappedBy = "task", cascade = CascadeType.ALL, orphanRemoval = true)
+    private boolean isDone;
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Details details;
+    private Priority priority;
 
     @Override
     public boolean equals(Object o) {

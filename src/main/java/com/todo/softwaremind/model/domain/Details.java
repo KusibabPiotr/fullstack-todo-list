@@ -1,18 +1,16 @@
 package com.todo.softwaremind.model.domain;
 
-import com.todo.softwaremind.model.Priority;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Builder
 @Getter
 @Setter
-@ToString
-@RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -21,12 +19,12 @@ public class Details {
     @Id
     @GeneratedValue
     private Long id;
+    private UUID publicId;
     private LocalDateTime created;
-    private LocalDateTime timeline;
-    private Priority priority;
-    @OneToOne
-    @JoinColumn(name = "task_id")
-    private Task task;
+    private LocalDateTime deadLine;
+    private String reportTo;
+    private String uplineEmail;
+    private String uplineMobile;
 
     @Override
     public boolean equals(Object o) {
