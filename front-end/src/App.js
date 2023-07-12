@@ -1,11 +1,10 @@
-import './App.css';
+import "./App.css";
+import ListTasksComponent from "./components/ListTasksComponent";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Hello world!</h1>
-      </header>
+    <div className="container">
+      <ListTasksComponent />
     </div>
   );
 }
