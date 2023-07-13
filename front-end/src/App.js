@@ -2,7 +2,7 @@ import "./App.css";
 import HeaderComponent from "./components/HeaderComponent";
 import ListTasksComponent from "./components/ListTasksComponent";
 import FooterComponent from "./components/FooterComponent";
-import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 function App() {
   return (
@@ -10,10 +10,10 @@ function App() {
       <Router>
         <HeaderComponent />
         <div className="container">
-          <Switch>
-            <Route path="/" exact component={ListEmployeeComponent}></Route>
-            <Route path="/tasks" component={ListEmployeeComponent}></Route>
-          </Switch>
+          <Routes>
+            <Route path="/" element={<ListTasksComponent />}></Route>
+            <Route path="/tasks" element={<ListTasksComponent />}></Route>
+          </Routes>
         </div>
         <FooterComponent />
       </Router>
