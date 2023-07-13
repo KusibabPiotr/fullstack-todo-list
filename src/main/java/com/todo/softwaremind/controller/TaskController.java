@@ -21,10 +21,10 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<Page<TaskDto>> getTasks(
-            @RequestParam(required = false, defaultValue = "priority") String sortBy,
+            @RequestParam(required = false, defaultValue = "isDone") String sortBy,
             @RequestParam(required = false, defaultValue = "ASC") String sortDirection,
             @RequestParam(required = false, defaultValue = "0") Integer page,
-            @RequestParam(required = false, defaultValue = "10") Integer pageSize) {
+            @RequestParam(required = false, defaultValue = "5") Integer pageSize) {
         return ResponseEntity.ok(taskService.getTasks(sortBy, sortDirection, page, pageSize));
     }
 
