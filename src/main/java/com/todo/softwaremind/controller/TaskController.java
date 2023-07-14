@@ -41,8 +41,8 @@ public class TaskController {
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable UUID id) {
+    public ResponseEntity<String> deleteTask(@PathVariable UUID id) {
         taskService.deleteTask(id);
-        return ResponseEntity.status(200).build();
+        return ResponseEntity.ok("User with id " + id + " has been successfully deleted!");
     }
 }
