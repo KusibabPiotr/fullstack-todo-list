@@ -147,7 +147,7 @@ export default function ListTasksComponent() {
       </div>
 
       <div className="row">
-        <table className="table table-stripped table-bordered">
+        <table className="table boarder shadow">
           <thead>
             <tr>
               <th>State</th>
@@ -165,6 +165,11 @@ export default function ListTasksComponent() {
                 <td>{task.title}</td>
                 <td>{task.content}</td>
                 <td>{task.priority}</td>
+                <td>
+                  <button className="btn btn-primary mx-2">Details</button>
+                  <button className="btn btn-outline-primary mx-2">Edit</button>
+                  <button className="btn btn-danger mx-2">Delete</button>
+                </td>
               </tr>
             ))}
           </tbody>
