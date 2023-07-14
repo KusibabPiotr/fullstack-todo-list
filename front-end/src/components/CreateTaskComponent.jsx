@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { v4 as uuidv4 } from "uuid";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import TaskService from "../services/TaskService";
 
@@ -163,14 +162,22 @@ export default function CreateTaskComponent() {
               <label htmlFor="ReportToMobile" className="form-label">
                 Report to mobile
               </label>
-              <input
-                type={"text"}
-                className="form-control"
-                placeholder="Enter report to mobile"
-                name="uplineMobile"
-                value={uplineMobile}
-                onChange={(e) => onInputChange(e)}
-              />
+              <div className="input-group">
+                <div className="input-group-prepend">
+                  <span className="input-group-text">+48</span>
+                </div>
+                <input
+                  type={"text"}
+                  className="form-control"
+                  placeholder="Enter polish 9-digits number"
+                  name="uplineMobile"
+                  value={uplineMobile}
+                  onChange={(e) => onInputChange(e)}
+                  maxLength={9}
+                  pattern="[0-9]*"
+                  title="Mobile number must be 9 digits"
+                />
+              </div>
             </div>
             <div className="text-center">
               <button type="submit" className="btn btn-outline-primary">
