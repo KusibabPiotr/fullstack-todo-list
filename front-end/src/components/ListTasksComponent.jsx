@@ -78,7 +78,18 @@ export default function ListTasksComponent() {
 
   return (
     <div>
-      <h2 className="text-center">Tasks list</h2>
+      <h1
+        className="text-center"
+        style={{
+          fontFamily: "Arial",
+          fontSize: "36px",
+          fontWeight: "bold",
+          color: "#333",
+          textTransform: "uppercase",
+        }}
+      >
+        Tasks List
+      </h1>
       <div className="row justify-content-end">
         <div className="col-auto">
           <button className="btn btn-primary" onClick={handleAddTask}>
@@ -88,34 +99,51 @@ export default function ListTasksComponent() {
       </div>
 
       <div className="text-center mb-3">
-        <label htmlFor="sortDirection">Sort Direction: </label>
-        <select
-          id="sortDirection"
-          value={sortDirection}
-          onChange={handleSortDirectionChange}
-        >
-          <option value="asc">Ascending</option>
-          <option value="desc">Descending</option>
-        </select>
-
-        <label htmlFor="sortBy" className="ml-3">
-          Sort By:{" "}
-        </label>
-        <select id="sortBy" value={sortBy} onChange={handleSortByChange}>
-          <option value="isDone">State</option>
-          <option value="title">Title</option>
-          <option value="content">Content</option>
-          <option value="priority">Priority</option>
-        </select>
-
-        <label htmlFor="pageSize" className="ml-3">
-          Page Size:{" "}
-        </label>
-        <select id="pageSize" value={pageSize} onChange={handlePageSizeChange}>
-          <option value="5">5</option>
-          <option value="10">10</option>
-          <option value="20">20</option>
-        </select>
+        <div className="row justify-content-center">
+          <div className="col-md-3">
+            <label htmlFor="sortDirection"> Sort Direction: </label>
+            <select
+              id="sortDirection"
+              value={sortDirection}
+              onChange={handleSortDirectionChange}
+              className="form-select"
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+          <div className="col-md-3">
+            <label htmlFor="sortBy" className="ml-3">
+              Sort By:{" "}
+            </label>
+            <select
+              id="sortBy"
+              value={sortBy}
+              onChange={handleSortByChange}
+              className="form-select"
+            >
+              <option value="isDone">State</option>
+              <option value="title">Title</option>
+              <option value="content">Content</option>
+              <option value="priority">Priority</option>
+            </select>
+          </div>
+          <div className="col-md-3">
+            <label htmlFor="pageSize" className="ml-3">
+              Page Size:{" "}
+            </label>
+            <select
+              id="pageSize"
+              value={pageSize}
+              onChange={handlePageSizeChange}
+              className="form-select"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div className="row">
