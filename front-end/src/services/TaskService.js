@@ -13,6 +13,10 @@ class TaskService {
       },
     });
   }
+
+  async createTask(task) {
+    return await axios.post(TASKS_API_BASE_URL, task);
+  }
 }
 
 export default new TaskService();

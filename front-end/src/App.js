@@ -12,9 +12,12 @@ function App() {
         <HeaderComponent />
         <div className="container">
           <Routes>
-            <Route path="/" element={<ListTasksComponent />}></Route>
-            <Route path="/tasks" element={<ListTasksComponent />}></Route>
-            <Route path="/add-task" element={<CreateTaskComponent />}></Route>
+            <Route exact path="/" element={<ListTasksComponent />}></Route>
+            <Route
+              exact
+              path="/add-task"
+              element={<CreateTaskComponent />}
+            ></Route>
           </Routes>
         </div>
         <FooterComponent />

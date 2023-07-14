@@ -92,8 +92,8 @@ export default function ListTasksComponent() {
       </h1>
       <div className="row justify-content-end">
         <div className="col-auto">
-          <button className="btn btn-primary" onClick={handleAddTask}>
-            Add employee
+          <button className="btn btn-success" onClick={handleAddTask}>
+            Add new task
           </button>
         </div>
       </div>
@@ -179,14 +179,14 @@ export default function ListTasksComponent() {
       <div className="text-center">
         <div>Current Page: {currentPage + 1}</div>
         <button
-          className="btn btn-primary"
+          className="btn btn-outline-primary"
           disabled={currentPage === 0}
           onClick={() => handlePageChange(currentPage - 1)}
         >
           Previous
         </button>
         <button
-          className="btn btn-primary"
+          className="btn btn-outline-primary"
           disabled={currentPage === totalPages - 1}
           onClick={() => handlePageChange(currentPage + 1)}
         >
