@@ -147,51 +147,54 @@ export default function ListTasksComponent() {
       </div>
 
       <div className="row">
-        <table className="table boarder shadow">
-          <thead>
-            <tr>
-              <th>State</th>
-              <th>Title</th>
-              <th>Content</th>
-              <th>Priority</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {tasks.map((task) => (
-              <tr key={task.publicId}>
-                <td>{task.isDone ? "Completed" : "Not completed"}</td>
-                <td>{task.title}</td>
-                <td>{task.content}</td>
-                <td>{task.priority}</td>
-                <td>
-                  <button className="btn btn-primary mx-2">Details</button>
-                  <button className="btn btn-outline-primary mx-2">Edit</button>
-                  <button className="btn btn-danger mx-2">Delete</button>
-                </td>
+        <div className="table-responsive" style={{ marginBottom: "80px" }}>
+          <table className="table boarder shadow">
+            <thead>
+              <tr>
+                <th>State</th>
+                <th>Title</th>
+                <th>Content</th>
+                <th>Priority</th>
+                <th>Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
 
-      <div className="text-center">
-        <div>Current Page: {currentPage + 1}</div>
-        <button
-          className="btn btn-outline-primary"
-          disabled={currentPage === 0}
-          onClick={() => handlePageChange(currentPage - 1)}
-        >
-          Previous
-        </button>
-        <button
-          className="btn btn-outline-primary"
-          disabled={currentPage === totalPages - 1}
-          onClick={() => handlePageChange(currentPage + 1)}
-        >
-          Next
-        </button>
+            <tbody>
+              {tasks.map((task) => (
+                <tr key={task.publicId}>
+                  <td>{task.isDone ? "Completed" : "Not completed"}</td>
+                  <td>{task.title}</td>
+                  <td>{task.content}</td>
+                  <td>{task.priority}</td>
+                  <td>
+                    <button className="btn btn-primary mx-2">Details</button>
+                    <button className="btn btn-outline-primary mx-2">
+                      Edit
+                    </button>
+                    <button className="btn btn-danger mx-2">Delete</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="text-center">
+            <div>Current Page: {currentPage + 1}</div>
+            <button
+              className="btn btn-outline-primary"
+              disabled={currentPage === 0}
+              onClick={() => handlePageChange(currentPage - 1)}
+            >
+              Previous
+            </button>
+            <button
+              className="btn btn-outline-primary"
+              disabled={currentPage === totalPages - 1}
+              onClick={() => handlePageChange(currentPage + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

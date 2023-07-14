@@ -6,7 +6,13 @@ export default function FooterComponent() {
   return (
     <div>
       <footer className="footer">
-        <span>All Rights Reserved {currentYear}</span>
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12 text-center">
+              <span>All Rights Reserved {currentYear}</span>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );

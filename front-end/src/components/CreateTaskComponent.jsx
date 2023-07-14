@@ -71,7 +71,8 @@ export default function CreateTaskComponent() {
   const onSubmit = async (e) => {
     e.preventDefault();
     console.log(task);
-    TaskService.createTask(task);
+    const createdTask = await TaskService.createTask(task);
+    setTask((prevTasks) => [createdTask, ...prevTasks]);
     navigate("/");
   };
 
