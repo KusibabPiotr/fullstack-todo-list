@@ -1,25 +1,18 @@
-import React, { Component } from "react";
+import React, { useEffect, useState } from "react";
 import TaskService from "../services/TaskService";
+import { useNavigate } from "react-router-dom";
 
-class ListTasksComponent extends Component {
-  constructor(props) {
-    super(props);
+export default function ListTasksComponent() {
+  const navigate = useNavigate();
 
-    this.state = {
-      tasks: [],
-      currentPage: 0,
-      totalPages: 0,
-      sortDirection: "asc",
-      sortBy: "isDone",
-      pageSize: 5,
-    };
-  }
+  const [tasks, setTasks] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortBy, setSortBy] = useState("isDone");
+  const [pageSize, setPageSize] = useState(5);
 
-  componentDidMount() {
-    this.fetchTasks();
-  }
-
-  fetchTasks = (
+  const fetchTasks = (
     page = 0,
     sortDirection = "asc",
     sortBy = "isDone",
@@ -28,10 +21,8 @@ class ListTasksComponent extends Component {
     TaskService.getTasks(page, sortDirection, sortBy, pageSize).then(
       (response) => {
         const { content, pageable, totalPages } = response.data;
-        const { sort } = pageable;
-        const { empty, sorted, unsorted } = sort;
 
-        const tasks = content.map((task) => ({
+        const mappedTasks = content.map((task) => ({
           publicId: task.publicId,
           title: task.title,
           content: task.content,
@@ -47,148 +38,128 @@ class ListTasksComponent extends Component {
           priority: task.priority,
         }));
 
-        this.setState({
-          tasks,
-          currentPage: pageable.pageNumber,
-          totalPages,
-          sortDirection,
-          sort: { empty, sorted, unsorted },
-        });
+        setTasks(mappedTasks);
+        setCurrentPage(pageable.pageNumber);
+        setTotalPages(totalPages);
+        setSortDirection(sortDirection);
       }
     );
   };
 
-  handlePageChange = (page) => {
-    const { sortDirection, sortBy, pageSize } = this.state;
-    this.fetchTasks(page, sortDirection, sortBy, pageSize);
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const handlePageChange = (page) => {
+    fetchTasks(page, sortDirection, sortBy, pageSize);
   };
 
-  handleSortDirectionChange = (event) => {
+  const handleSortDirectionChange = (event) => {
     const newSortDirection = event.target.value;
-    this.setState({ sortDirection: newSortDirection }, () => {
-      this.fetchTasks(
-        this.state.currentPage,
-        newSortDirection,
-        this.state.sortBy,
-        this.state.pageSize
-      );
-    });
+    setSortDirection(newSortDirection);
+    fetchTasks(currentPage, newSortDirection, sortBy, pageSize);
   };
 
-  handleSortByChange = (event) => {
+  const handleSortByChange = (event) => {
     const newSortBy = event.target.value;
-    this.setState({ sortBy: newSortBy }, () => {
-      this.fetchTasks(
-        this.state.currentPage,
-        this.state.sortDirection,
-        newSortBy,
-        this.state.pageSize
-      );
-    });
+    setSortBy(newSortBy);
+    fetchTasks(currentPage, sortDirection, newSortBy, pageSize);
   };
 
-  handlePageSizeChange = (event) => {
+  const handlePageSizeChange = (event) => {
     const newPageSize = parseInt(event.target.value, 10);
-    this.setState({ pageSize: newPageSize }, () => {
-      this.fetchTasks(
-        this.state.currentPage,
-        this.state.sortDirection,
-        this.state.sortBy,
-        newPageSize
-      );
-    });
+    setPageSize(newPageSize);
+    fetchTasks(currentPage, sortDirection, sortBy, newPageSize);
   };
 
-  render() {
-    const { tasks, currentPage, totalPages, sortDirection, pageSize } =
-      this.state;
+  const handleAddTask = () => {
+    navigate("/add-task");
+  };
 
-    return (
-      <div>
-        <h2 className="text-center">Tasks list</h2>
-
-        <div className="text-center mb-3">
-          <label htmlFor="sortDirection">Sort Direction: </label>
-          <select
-            id="sortDirection"
-            value={sortDirection}
-            onChange={this.handleSortDirectionChange}
-          >
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
-
-          <label htmlFor="sortBy" className="ml-3">
-            Sort By:{" "}
-          </label>
-          <select
-            id="sortBy"
-            value={this.state.sortBy}
-            onChange={this.handleSortByChange}
-          >
-            <option value="isDone">State</option>
-            <option value="title">Title</option>
-            <option value="content">Content</option>
-            <option value="priority">Priority</option>
-          </select>
-
-          <label htmlFor="pageSize" className="ml-3">
-            Page Size:{" "}
-          </label>
-          <select
-            id="pageSize"
-            value={pageSize}
-            onChange={this.handlePageSizeChange}
-          >
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="20">20</option>
-          </select>
-        </div>
-
-        <div className="row">
-          <table className="table table-stripped table-bordered">
-            <thead>
-              <tr>
-                <th>State</th>
-                <th>Title</th>
-                <th>Content</th>
-                <th>Priority</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {tasks.map((task) => (
-                <tr key={task.publicId}>
-                  <td>{task.isDone ? "Completed" : "Not completed"}</td>
-                  <td>{task.title}</td>
-                  <td>{task.content}</td>
-                  <td>{task.priority}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <div className="text-center">
-          <div>Current Page: {currentPage + 1}</div>
-          <button
-            disabled={currentPage === 0}
-            onClick={() => this.handlePageChange(currentPage - 1)}
-          >
-            Previous
-          </button>
-          <button
-            disabled={currentPage === totalPages - 1}
-            onClick={() => this.handlePageChange(currentPage + 1)}
-          >
-            Next
+  return (
+    <div>
+      <h2 className="text-center">Tasks list</h2>
+      <div className="row justify-content-end">
+        <div className="col-auto">
+          <button className="btn btn-primary" onClick={handleAddTask}>
+            Add employee
           </button>
         </div>
       </div>
-    );
-  }
-}
 
-export default ListTasksComponent;
+      <div className="text-center mb-3">
+        <label htmlFor="sortDirection">Sort Direction: </label>
+        <select
+          id="sortDirection"
+          value={sortDirection}
+          onChange={handleSortDirectionChange}
+        >
+          <option value="asc">Ascending</option>
+          <option value="desc">Descending</option>
+        </select>
+
+        <label htmlFor="sortBy" className="ml-3">
+          Sort By:{" "}
+        </label>
+        <select id="sortBy" value={sortBy} onChange={handleSortByChange}>
+          <option value="isDone">State</option>
+          <option value="title">Title</option>
+          <option value="content">Content</option>
+          <option value="priority">Priority</option>
+        </select>
+
+        <label htmlFor="pageSize" className="ml-3">
+          Page Size:{" "}
+        </label>
+        <select id="pageSize" value={pageSize} onChange={handlePageSizeChange}>
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+
+      <div className="row">
+        <table className="table table-stripped table-bordered">
+          <thead>
+            <tr>
+              <th>State</th>
+              <th>Title</th>
+              <th>Content</th>
+              <th>Priority</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {tasks.map((task) => (
+              <tr key={task.publicId}>
+                <td>{task.isDone ? "Completed" : "Not completed"}</td>
+                <td>{task.title}</td>
+                <td>{task.content}</td>
+                <td>{task.priority}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="text-center">
+        <div>Current Page: {currentPage + 1}</div>
+        <button
+          className="btn btn-primary"
+          disabled={currentPage === 0}
+          onClick={() => handlePageChange(currentPage - 1)}
+        >
+          Previous
+        </button>
+        <button
+          className="btn btn-primary"
+          disabled={currentPage === totalPages - 1}
+          onClick={() => handlePageChange(currentPage + 1)}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+}

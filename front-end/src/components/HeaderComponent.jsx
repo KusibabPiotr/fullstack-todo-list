@@ -2,7 +2,7 @@ import React from "react";
 
 const TASKS_API_BASE_URL = "http://localhost:3000";
 
-const HeaderComponent = () => {
+export default function HeaderComponent() {
   return (
     <div>
       <header>
@@ -16,6 +16,4 @@ const HeaderComponent = () => {
       </header>
     </div>
   );
-};
-
-export default HeaderComponent;
+}
