@@ -141,7 +141,7 @@ export default function CreateTaskComponent() {
               <input
                 type={"text"}
                 className="form-control"
-                placeholder="Enter report to"
+                placeholder="ex. John Smith"
                 name="reportTo"
                 value={reportTo}
                 onChange={(e) => onInputChange(e)}
@@ -153,10 +153,12 @@ export default function CreateTaskComponent() {
               <input
                 type={"text"}
                 className="form-control"
-                placeholder="Enter report to email"
+                placeholder="example@example.com"
                 name="uplineEmail"
                 value={uplineEmail}
                 onChange={(e) => onInputChange(e)}
+                pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                title="Enter a valid email address"
               />
               <br />
               <label htmlFor="ReportToMobile" className="form-label">
