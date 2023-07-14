@@ -13,6 +13,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
@@ -31,8 +33,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskDto updateTask(TaskDto taskDto, Long id) {
-        Task taskFromDb = taskRepository.findById(id)
+    public TaskDto updateTask(TaskDto taskDto, UUID id) {
+        Task taskFromDb = taskRepository.findByPublicId(id)
                 .orElseThrow(TaskNotFoundException::new);
         taskFromDb.setTitle(taskDto.title());
         taskFromDb.setContent(taskDto.content());
@@ -41,8 +43,17 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public void deleteTask(Long id) {
-        taskRepository.deleteById(id);
+    public void deleteTask(UUID id) {
+        taskRepository.findByPublicId(id)
+                .orElseThrow(TaskNotFoundException::new);
+        taskRepository.deleteByPublicId(id);
+    }
+
+    @Override
+    public TaskDto getTask(UUID id) {
+        return taskMapper.mapTaskToDto(
+                taskRepository.findByPublicId(id)
+                        .orElseThrow(TaskNotFoundException::new));
     }
 
     private PageRequest createPageRequest(String sortBy, String sortDirection, Integer page, Integer pageSize) {
