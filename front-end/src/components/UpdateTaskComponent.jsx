@@ -52,9 +52,7 @@ export default function UpdateTaskComponent() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    console.log(task);
     await axios.put(`http://localhost:8080/api/tasks/${id}`, task);
-    // setTask((prevTasks) => [createdTask, ...prevTasks]);
     navigate("/");
   };
 
