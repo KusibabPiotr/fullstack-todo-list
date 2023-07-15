@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import TaskService from "../services/TaskService";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 export default function ListTasksComponent() {
-  const navigate = useNavigate();
-
   const [tasks, setTasks] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -72,8 +71,9 @@ export default function ListTasksComponent() {
     fetchTasks(currentPage, sortDirection, sortBy, newPageSize);
   };
 
-  const handleAddTask = () => {
-    navigate("/add-task");
+  const deleteTask = async (id) => {
+    await axios.delete(`http://localhost:8080/api/tasks/${id}`);
+    fetchTasks();
   };
 
   return (
@@ -92,9 +92,9 @@ export default function ListTasksComponent() {
       </h1>
       <div className="row justify-content-end">
         <div className="col-auto">
-          <button className="btn btn-success" onClick={handleAddTask}>
+          <Link className="btn btn-success" to="/add-task">
             Add new task
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -167,11 +167,24 @@ export default function ListTasksComponent() {
                   <td>{task.content}</td>
                   <td>{task.priority}</td>
                   <td>
-                    <button className="btn btn-primary mx-2">Details</button>
-                    <button className="btn btn-outline-primary mx-2">
+                    <Link
+                      className="btn btn-primary mx-2"
+                      to={`/view-task/${task.publicId}`}
+                    >
+                      Details
+                    </Link>
+                    <Link
+                      className="btn btn-outline-primary mx-2"
+                      to={`/update-task/${task.publicId}`}
+                    >
                       Edit
+                    </Link>
+                    <button
+                      className="btn btn-danger mx-2"
+                      onClick={() => deleteTask(task.publicId)}
+                    >
+                      Delete
                     </button>
-                    <button className="btn btn-danger mx-2">Delete</button>
                   </td>
                 </tr>
               ))}

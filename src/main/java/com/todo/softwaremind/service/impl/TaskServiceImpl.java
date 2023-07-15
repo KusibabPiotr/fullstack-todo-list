@@ -6,6 +6,7 @@ import com.todo.softwaremind.mapper.TaskMapper;
 import com.todo.softwaremind.model.dto.TaskDto;
 import com.todo.softwaremind.repository.TaskRepository;
 import com.todo.softwaremind.service.contract.TaskService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,11 +40,13 @@ public class TaskServiceImpl implements TaskService {
                     task.setDetails(detailsMapper.mapDetailsDtoToDetails(taskDto.details()));
                     task.setDone(taskDto.isDone());
                     task.setPriority(taskDto.priority());
+                    taskRepository.save(task);
                     return taskMapper.mapTaskToDto(task);
                 })
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
+    @Transactional
     @Override
     public void deleteTask(UUID id) {
         taskRepository.findByPublicId(id)
