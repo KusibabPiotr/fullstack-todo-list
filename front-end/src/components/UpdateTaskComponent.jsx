@@ -1,48 +1,31 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { v4 as uuidv4 } from "uuid";
-import { Link } from "react-router-dom";
-import TaskService from "../services/TaskService";
+import axios from "axios";
 
-export default function CreateTaskComponent() {
+export default function UpdateTaskComponent() {
   const navigate = useNavigate();
-  const todaysDate = new Date();
-  const [field1UUID, setField1UUID] = useState("");
-  const [field2UUID, setField2UUID] = useState("");
+  const { id } = useParams();
 
   useEffect(() => {
-    const newField1UUID = uuidv4();
-    const newField2UUID = uuidv4();
-
-    setField1UUID(newField1UUID);
-    setField2UUID(newField2UUID);
-
-    setTask((prevTask) => ({
-      ...prevTask,
-      publicId: newField1UUID,
-      details: {
-        ...prevTask.details,
-        publicId: newField2UUID,
-      },
-    }));
+    loadUser();
   }, []);
 
   const [task, setTask] = useState({
     publicId: "",
     title: "",
     content: "",
-    isDone: false,
+    isDone: "",
     details: {
       publicId: "",
-      created: todaysDate,
+      created: "",
       deadline: "",
       reportTo: "",
       uplineEmail: "",
       uplineMobile: "",
     },
-    priority: "HIGH",
+    priority: "",
   });
 
   const { publicId, title, content, isDone, details, priority } = task;
@@ -69,9 +52,15 @@ export default function CreateTaskComponent() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    const createdTask = await TaskService.createTask(task);
+    console.log(task);
+    await axios.put(`http://localhost:8080/api/tasks/${id}`, task);
     // setTask((prevTasks) => [createdTask, ...prevTasks]);
     navigate("/");
+  };
+
+  const loadUser = async () => {
+    const result = await axios.get(`http://localhost:8080/api/tasks/${id}`);
+    setTask(result.data);
   };
 
   return (
@@ -79,7 +68,7 @@ export default function CreateTaskComponent() {
       <div className="row">
         <div className="table-responsive" style={{ marginBottom: "80px" }}>
           <div className="col-md-6 offset-md-3 boarder rounded p-1 mt-2 shadow">
-            <h2 className="text-center m-4">Create task</h2>
+            <h2 className="text-center m-4">Update task</h2>
             <form onSubmit={(e) => onSubmit(e)}>
               <div className="mb-3">
                 <label htmlFor="Title" className="form-label">

@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import TaskService from "../services/TaskService";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function ListTasksComponent() {
-  const navigate = useNavigate();
-
   const [tasks, setTasks] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -72,10 +70,6 @@ export default function ListTasksComponent() {
     fetchTasks(currentPage, sortDirection, sortBy, newPageSize);
   };
 
-  const handleAddTask = () => {
-    navigate("/add-task");
-  };
-
   return (
     <div>
       <h1
@@ -92,9 +86,9 @@ export default function ListTasksComponent() {
       </h1>
       <div className="row justify-content-end">
         <div className="col-auto">
-          <button className="btn btn-success" onClick={handleAddTask}>
+          <Link className="btn btn-success" to="/add-task">
             Add new task
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -168,9 +162,12 @@ export default function ListTasksComponent() {
                   <td>{task.priority}</td>
                   <td>
                     <button className="btn btn-primary mx-2">Details</button>
-                    <button className="btn btn-outline-primary mx-2">
+                    <Link
+                      className="btn btn-outline-primary mx-2"
+                      to={`/update-task/${task.publicId}`}
+                    >
                       Edit
-                    </button>
+                    </Link>
                     <button className="btn btn-danger mx-2">Delete</button>
                   </td>
                 </tr>
