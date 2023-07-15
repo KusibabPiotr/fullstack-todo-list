@@ -13,7 +13,7 @@ export default function ViewTaskComponent() {
     details: {
       publicId: "",
       created: "",
-      deadline: "",
+      deadLine: "",
       reportTo: "",
       uplineEmail: "",
       uplineMobile: "",
@@ -62,7 +62,7 @@ export default function ViewTaskComponent() {
                   </li>
                   <li className="list-group-item">
                     <b>Deadline: </b>
-                    {task.details.deadline}
+                    {task.details.deadLine}
                   </li>
                   <li className="list-group-item">
                     <b>Report to: </b>

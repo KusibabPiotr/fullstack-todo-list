@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import DateTime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
 import axios from "axios";
 
 export default function UpdateTaskComponent() {
@@ -20,7 +20,7 @@ export default function UpdateTaskComponent() {
     details: {
       publicId: "",
       created: "",
-      deadline: "",
+      deadLine: "",
       reportTo: "",
       uplineEmail: "",
       uplineMobile: "",
@@ -32,7 +32,7 @@ export default function UpdateTaskComponent() {
   const {
     publicId: detailsPublicId,
     created,
-    deadline,
+    deadLine,
     reportTo,
     uplineEmail,
     uplineMobile,
@@ -40,14 +40,27 @@ export default function UpdateTaskComponent() {
 
   const onInputChange = (e) => {
     const { name, value } = e.target;
-    setTask((prevTask) => ({
-      ...prevTask,
-      [name]: value,
-      details: {
-        ...prevTask.details,
+
+    if (name === "deadLine" && value) {
+      let deadlineParsed = value.toISOString();
+      console.log(deadlineParsed);
+      setTask((prevTask) => ({
+        ...prevTask,
+        details: {
+          ...prevTask.details,
+          [name]: deadlineParsed,
+        },
+      }));
+    } else {
+      setTask((prevTask) => ({
+        ...prevTask,
         [name]: value,
-      },
-    }));
+        details: {
+          ...prevTask.details,
+          [name]: value,
+        },
+      }));
+    }
   };
 
   const onSubmit = async (e) => {
@@ -113,12 +126,13 @@ export default function UpdateTaskComponent() {
                   Deadline
                 </label>
                 <br />
-                <DatePicker
-                  selected={deadline}
+                <DateTime
                   onChange={(date) =>
-                    onInputChange({ target: { name: "deadline", value: date } })
+                    onInputChange({ target: { name: "deadLine", value: date } })
                   }
-                  dateFormat="dd/MM/yyyy"
+                  dateFormat="YYYY-MM-DD"
+                  value={deadLine}
+                  timeFormat="HH:mm:ss.SSS"
                   placeholderText="Select a deadline date"
                 />
                 <br />

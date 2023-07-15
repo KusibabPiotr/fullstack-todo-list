@@ -5,6 +5,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { v4 as uuidv4 } from "uuid";
 import { Link } from "react-router-dom";
 import TaskService from "../services/TaskService";
+import DateTime from "react-datetime";
 
 export default function CreateTaskComponent() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function CreateTaskComponent() {
     details: {
       publicId: "",
       created: todaysDate,
-      deadline: "",
+      deadLine: todaysDate,
       reportTo: "",
       uplineEmail: "",
       uplineMobile: "",
@@ -49,7 +50,7 @@ export default function CreateTaskComponent() {
   const {
     publicId: detailsPublicId,
     created,
-    deadline,
+    deadLine,
     reportTo,
     uplineEmail,
     uplineMobile,
@@ -57,19 +58,32 @@ export default function CreateTaskComponent() {
 
   const onInputChange = (e) => {
     const { name, value } = e.target;
-    setTask((prevTask) => ({
-      ...prevTask,
-      [name]: value,
-      details: {
-        ...prevTask.details,
+
+    if (name === "deadLine" && value) {
+      let deadlineParsed = value.toISOString();
+      console.log(deadlineParsed);
+      setTask((prevTask) => ({
+        ...prevTask,
+        details: {
+          ...prevTask.details,
+          [name]: deadlineParsed,
+        },
+      }));
+    } else {
+      setTask((prevTask) => ({
+        ...prevTask,
         [name]: value,
-      },
-    }));
+        details: {
+          ...prevTask.details,
+          [name]: value,
+        },
+      }));
+    }
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    const createdTask = await TaskService.createTask(task);
+    await TaskService.createTask(task);
     navigate("/");
   };
 
@@ -125,12 +139,13 @@ export default function CreateTaskComponent() {
                   Deadline
                 </label>
                 <br />
-                <DatePicker
-                  selected={deadline}
+                <DateTime
                   onChange={(date) =>
-                    onInputChange({ target: { name: "deadline", value: date } })
+                    onInputChange({ target: { name: "deadLine", value: date } })
                   }
-                  dateFormat="dd/MM/yyyy"
+                  dateFormat="YYYY-MM-DD"
+                  value={deadLine}
+                  timeFormat="HH:mm:ss.SSS"
                   placeholderText="Select a deadline date"
                 />
                 <br />
