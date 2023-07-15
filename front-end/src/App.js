@@ -3,6 +3,7 @@ import HeaderComponent from "./components/HeaderComponent";
 import ListTasksComponent from "./components/ListTasksComponent";
 import FooterComponent from "./components/FooterComponent";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import CreateTaskComponent from "./components/CreateTaskComponent";
 
 function App() {
   return (
@@ -11,8 +12,12 @@ function App() {
         <HeaderComponent />
         <div className="container">
           <Routes>
-            <Route path="/" element={<ListTasksComponent />}></Route>
-            <Route path="/tasks" element={<ListTasksComponent />}></Route>
+            <Route exact path="/" element={<ListTasksComponent />}></Route>
+            <Route
+              exact
+              path="/add-task"
+              element={<CreateTaskComponent />}
+            ></Route>
           </Routes>
         </div>
         <FooterComponent />

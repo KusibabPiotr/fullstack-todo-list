@@ -2,13 +2,21 @@ import React from "react";
 
 const TASKS_API_BASE_URL = "http://localhost:3000";
 
-const HeaderComponent = () => {
+export default function HeaderComponent() {
   return (
     <div>
       <header>
         <nav className="navbar navbar-expand-md navbar-dark bg-dark">
           <div>
-            <a href={TASKS_API_BASE_URL} className="navbar-brand">
+            <a
+              href={TASKS_API_BASE_URL}
+              className="navbar-brand"
+              style={{
+                fontSize: "24px",
+                fontWeight: "bold",
+                letterSpacing: "1px",
+              }}
+            >
               Tasks Management App
             </a>
           </div>
@@ -16,6 +24,4 @@ const HeaderComponent = () => {
       </header>
     </div>
   );
-};
-
-export default HeaderComponent;
+}

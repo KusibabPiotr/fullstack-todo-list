@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping(value = "/api/tasks")
 @RequiredArgsConstructor
@@ -28,14 +30,19 @@ public class TaskController {
         return ResponseEntity.ok(taskService.getTasks(sortBy, sortDirection, page, pageSize));
     }
 
+    @GetMapping(value = "/{id}")
+    public ResponseEntity<TaskDto> getTask(@PathVariable UUID id) {
+        return ResponseEntity.ok(taskService.getTask(id));
+    }
+
     @PutMapping(value = "/{id}")
-    public ResponseEntity<TaskDto> updateTask(@RequestBody TaskDto taskDto, @PathVariable Long id) {
+    public ResponseEntity<TaskDto> updateTask(@RequestBody TaskDto taskDto, @PathVariable UUID id) {
         return ResponseEntity.ok(taskService.updateTask(taskDto, id));
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    public ResponseEntity<String> deleteTask(@PathVariable UUID id) {
         taskService.deleteTask(id);
-        return ResponseEntity.status(200).build();
+        return ResponseEntity.ok("User with id " + id + " has been successfully deleted!");
     }
 }

@@ -1,15 +1,19 @@
 import React from "react";
 
-const FooterComponent = () => {
+export default function FooterComponent() {
   const currentYear = new Date().getFullYear();
 
   return (
     <div>
       <footer className="footer">
-        <span>All Rights Reserved {currentYear}</span>
+        <div className="container">
+          <div className="row">
+            <div className="col-md-12 text-center">
+              <span>All Rights Reserved {currentYear}</span>
+            </div>
+          </div>
+        </div>
       </footer>
     </div>
   );
-};
-
-export default FooterComponent;
+}
