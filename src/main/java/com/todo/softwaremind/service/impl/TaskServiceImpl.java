@@ -30,7 +30,7 @@ public class TaskServiceImpl implements TaskService {
         var pageRequest = createPageRequest(sortBy, sortDirection, page, pageSize);
         return taskMapper.mapTaskPageToTaskDtoPage(taskRepository.findAll(pageRequest));
     }
-    
+
     @Override
     public TaskDto updateTask(TaskDto taskDto, UUID id) {
         return taskRepository.findByPublicId(id)

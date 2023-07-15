@@ -167,7 +167,12 @@ export default function ListTasksComponent() {
                   <td>{task.content}</td>
                   <td>{task.priority}</td>
                   <td>
-                    <button className="btn btn-primary mx-2">Details</button>
+                    <Link
+                      className="btn btn-primary mx-2"
+                      to={`/view-task/${task.publicId}`}
+                    >
+                      Details
+                    </Link>
                     <Link
                       className="btn btn-outline-primary mx-2"
                       to={`/update-task/${task.publicId}`}

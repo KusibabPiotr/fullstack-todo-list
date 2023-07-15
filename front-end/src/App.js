@@ -5,6 +5,7 @@ import FooterComponent from "./components/FooterComponent";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import CreateTaskComponent from "./components/CreateTaskComponent";
 import UpdateTaskComponent from "./components/UpdateTaskComponent";
+import ViewTaskComponent from "./components/ViewTaskComponent";
 
 function App() {
   return (
@@ -19,6 +20,11 @@ function App() {
               exact
               path="/update-task/:id"
               element={<UpdateTaskComponent />}
+            />
+            <Route
+              exact
+              path="/view-task/:id"
+              element={<ViewTaskComponent />}
             />
           </Routes>
         </div>
