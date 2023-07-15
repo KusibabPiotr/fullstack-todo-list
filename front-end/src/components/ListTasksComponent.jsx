@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import TaskService from "../services/TaskService";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 export default function ListTasksComponent() {
   const [tasks, setTasks] = useState([]);
@@ -68,6 +69,11 @@ export default function ListTasksComponent() {
     const newPageSize = parseInt(event.target.value, 10);
     setPageSize(newPageSize);
     fetchTasks(currentPage, sortDirection, sortBy, newPageSize);
+  };
+
+  const deleteTask = async (id) => {
+    await axios.delete(`http://localhost:8080/api/tasks/${id}`);
+    fetchTasks();
   };
 
   return (
@@ -168,7 +174,12 @@ export default function ListTasksComponent() {
                     >
                       Edit
                     </Link>
-                    <button className="btn btn-danger mx-2">Delete</button>
+                    <button
+                      className="btn btn-danger mx-2"
+                      onClick={() => deleteTask(task.publicId)}
+                    >
+                      Delete
+                    </button>
                   </td>
                 </tr>
               ))}

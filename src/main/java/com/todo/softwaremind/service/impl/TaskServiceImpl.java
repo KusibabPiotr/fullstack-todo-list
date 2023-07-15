@@ -30,9 +30,8 @@ public class TaskServiceImpl implements TaskService {
         var pageRequest = createPageRequest(sortBy, sortDirection, page, pageSize);
         return taskMapper.mapTaskPageToTaskDtoPage(taskRepository.findAll(pageRequest));
     }
-
+    
     @Override
-    @Transactional
     public TaskDto updateTask(TaskDto taskDto, UUID id) {
         return taskRepository.findByPublicId(id)
                 .map(task -> {
@@ -47,6 +46,7 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
+    @Transactional
     @Override
     public void deleteTask(UUID id) {
         taskRepository.findByPublicId(id)
