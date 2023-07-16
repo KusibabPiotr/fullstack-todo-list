@@ -142,13 +142,16 @@ export default function UpdateTaskComponent() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    const titleError = validateField("title", title);
-    const contentError = validateField("content", content);
-    const reportToError = validateField("reportTo", details.reportTo);
-    const uplineEmailError = validateField("uplineEmail", details.uplineEmail);
+    const titleError = validateField("title", task.title);
+    const contentError = validateField("content", task.content);
+    const reportToError = validateField("reportTo", task.details.reportTo);
+    const uplineEmailError = validateField(
+      "uplineEmail",
+      task.details.uplineEmail
+    );
     const uplineMobileError = validateField(
       "uplineMobile",
-      details.uplineMobile
+      task.details.uplineMobile
     );
 
     setTitleError(titleError);
@@ -166,7 +169,16 @@ export default function UpdateTaskComponent() {
     ) {
       return;
     }
-    await axios.put(`http://localhost:8080/api/tasks/${id}`, task);
+
+    const updatedTask = {
+      ...task,
+      details: {
+        ...task.details,
+        deadLine: details.deadLine,
+      },
+    };
+
+    await axios.put(`http://localhost:8080/api/tasks/${id}`, updatedTask);
     navigate("/");
   };
 
@@ -219,6 +231,19 @@ export default function UpdateTaskComponent() {
                     {contentError}
                   </div>
                 )}
+                <br />
+                <label htmlFor="Progress" className="form-label">
+                  Progress
+                </label>
+                <select
+                  className="form-control"
+                  value={task.isDone.toString()}
+                  name="isDone"
+                  onChange={onInputChange}
+                >
+                  <option value="false">Not Completed</option>
+                  <option value="true">Completed</option>
+                </select>
                 <br />
                 <label htmlFor="Priority" className="form-label">
                   Priority
