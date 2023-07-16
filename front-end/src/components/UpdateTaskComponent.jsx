@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import DateTime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import axios from "axios";
+import { validateField } from "../utils/ValidationUtils";
 
 export default function UpdateTaskComponent() {
   const navigate = useNavigate();
@@ -22,52 +23,6 @@ export default function UpdateTaskComponent() {
   const [reportToError, setReportToError] = useState("");
   const [uplineEmailError, setUplineEmailError] = useState("");
   const [uplineMobileError, setUplineMobileError] = useState("");
-
-  const validateField = (fieldName, value) => {
-    switch (fieldName) {
-      case "title":
-        if (!value) {
-          return "Title is required";
-        }
-        return "";
-      case "content":
-        if (!value) {
-          return "Content is required";
-        }
-        return "";
-      case "reportTo":
-        if (!value) {
-          return "Report to is required";
-        }
-        return "";
-      case "uplineEmail":
-        if (!value) {
-          return "Email is required";
-        } else if (!isValidEmail(value)) {
-          return "Invalid email address";
-        }
-        return "";
-      case "uplineMobile":
-        if (!value) {
-          return "Mobile number is required";
-        } else if (!isValidPhoneNumber(value)) {
-          return "Invalid mobile number";
-        }
-        return "";
-      default:
-        return "";
-    }
-  };
-
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const isValidPhoneNumber = (phoneNumber) => {
-    const phoneNumberRegex = /^\d{9}$/;
-    return phoneNumberRegex.test(phoneNumber);
-  };
 
   useEffect(() => {
     loadUser();
@@ -95,7 +50,6 @@ export default function UpdateTaskComponent() {
 
     if (name === "deadLine" && value) {
       let deadlineParsed = value.toISOString();
-      console.log(deadlineParsed);
       setTask((prevTask) => ({
         ...prevTask,
         details: {

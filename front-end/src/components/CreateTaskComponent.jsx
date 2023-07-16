@@ -1,35 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "react-datepicker/dist/react-datepicker.css";
+import DateTime from "react-datetime";
 import { v4 as uuidv4 } from "uuid";
 import { Link } from "react-router-dom";
 import TaskService from "../services/TaskService";
-import DateTime from "react-datetime";
+import { validateField } from "../utils/ValidationUtils";
 
 export default function CreateTaskComponent() {
   const navigate = useNavigate();
   const todaysDate = new Date();
-  const [field1UUID, setField1UUID] = useState("");
-  const [field2UUID, setField2UUID] = useState("");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [isDone, setIsDone] = useState(false);
-  const [publicId, setPublicId] = useState("");
-  const [priority, setPriority] = useState("HIGH");
-  const [details, setDetails] = useState({
-    publicId: "",
-    created: todaysDate,
-    deadLine: todaysDate,
-    reportTo: "",
-    uplineEmail: "",
-    uplineMobile: "",
-  });
-  const [titleError, setTitleError] = useState("");
-  const [contentError, setContentError] = useState("");
-  const [reportToError, setReportToError] = useState("");
-  const [uplineEmailError, setUplineEmailError] = useState("");
-  const [uplineMobileError, setUplineMobileError] = useState("");
-
   const [task, setTask] = useState({
     publicId: "",
     title: "",
@@ -45,69 +24,21 @@ export default function CreateTaskComponent() {
     },
     priority: "HIGH",
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const newField1UUID = uuidv4();
-    const newField2UUID = uuidv4();
-
-    setField1UUID(newField1UUID);
-    setField2UUID(newField2UUID);
+    const field1UUID = uuidv4();
+    const field2UUID = uuidv4();
 
     setTask((prevTask) => ({
       ...prevTask,
-      publicId: newField1UUID,
+      publicId: field1UUID,
       details: {
         ...prevTask.details,
-        publicId: newField2UUID,
+        publicId: field2UUID,
       },
     }));
   }, []);
-
-  const validateField = (fieldName, value) => {
-    switch (fieldName) {
-      case "title":
-        if (!value) {
-          return "Title is required";
-        }
-        return "";
-      case "content":
-        if (!value) {
-          return "Content is required";
-        }
-        return "";
-      case "reportTo":
-        if (!value) {
-          return "Report to is required";
-        }
-        return "";
-      case "uplineEmail":
-        if (!value) {
-          return "Email is required";
-        } else if (!isValidEmail(value)) {
-          return "Invalid email address";
-        }
-        return "";
-      case "uplineMobile":
-        if (!value) {
-          return "Mobile number is required";
-        } else if (!isValidPhoneNumber(value)) {
-          return "Invalid mobile number";
-        }
-        return "";
-      default:
-        return "";
-    }
-  };
-
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const isValidPhoneNumber = (phoneNumber) => {
-    const phoneNumberRegex = /^\d{9}$/;
-    return phoneNumberRegex.test(phoneNumber);
-  };
 
   const onInputChange = (e) => {
     const { name, value } = e.target;
@@ -122,36 +53,16 @@ export default function CreateTaskComponent() {
       },
     }));
 
-    if (name === "title") {
-      setTitle(value);
-      setTitleError(validationError);
-    } else if (name === "content") {
-      setContent(value);
-      setContentError(validationError);
-    } else if (name === "reportTo") {
-      setDetails((prevDetails) => ({
-        ...prevDetails,
-        reportTo: value,
-      }));
-      setReportToError(validationError);
-    } else if (name === "uplineEmail") {
-      setDetails((prevDetails) => ({
-        ...prevDetails,
-        uplineEmail: value,
-      }));
-      setUplineEmailError(validationError);
-    } else if (name === "uplineMobile") {
-      setDetails((prevDetails) => ({
-        ...prevDetails,
-        uplineMobile: value,
-      }));
-      setUplineMobileError(validationError);
-    }
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: validationError,
+    }));
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
 
+    const { title, content, details } = task;
     const titleError = validateField("title", title);
     const contentError = validateField("content", content);
     const reportToError = validateField("reportTo", details.reportTo);
@@ -161,19 +72,17 @@ export default function CreateTaskComponent() {
       details.uplineMobile
     );
 
-    setTitleError(titleError);
-    setContentError(contentError);
-    setReportToError(reportToError);
-    setUplineEmailError(uplineEmailError);
-    setUplineMobileError(uplineMobileError);
+    const newErrors = {
+      title: titleError,
+      content: contentError,
+      reportTo: reportToError,
+      uplineEmail: uplineEmailError,
+      uplineMobile: uplineMobileError,
+    };
 
-    if (
-      titleError ||
-      contentError ||
-      reportToError ||
-      uplineEmailError ||
-      uplineMobileError
-    ) {
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).some((error) => error)) {
       return;
     }
 
@@ -197,12 +106,12 @@ export default function CreateTaskComponent() {
                   className="form-control"
                   placeholder="Enter the title"
                   name="title"
-                  value={title}
+                  value={task.title}
                   onChange={onInputChange}
                 />
-                {titleError && (
+                {errors.title && (
                   <div className="alert alert-danger" role="alert">
-                    {titleError}
+                    {errors.title}
                   </div>
                 )}
                 <br />
@@ -216,12 +125,12 @@ export default function CreateTaskComponent() {
                   name="content"
                   rows={2}
                   cols={50}
-                  value={content}
+                  value={task.content}
                   onChange={onInputChange}
                 />
-                {contentError && (
+                {errors.content && (
                   <div className="alert alert-danger" role="alert">
-                    {contentError}
+                    {errors.content}
                   </div>
                 )}
                 <br />
@@ -230,7 +139,7 @@ export default function CreateTaskComponent() {
                 </label>
                 <select
                   className="form-control"
-                  value={priority}
+                  value={task.priority}
                   name="priority"
                   onChange={onInputChange}
                 >
@@ -245,13 +154,16 @@ export default function CreateTaskComponent() {
                 <br />
                 <DateTime
                   onChange={(date) =>
-                    setDetails((prevDetails) => ({
-                      ...prevDetails,
-                      deadLine: date,
+                    setTask((prevTask) => ({
+                      ...prevTask,
+                      details: {
+                        ...prevTask.details,
+                        deadLine: date,
+                      },
                     }))
                   }
                   dateFormat="YYYY-MM-DD"
-                  value={details.deadLine}
+                  value={task.details.deadLine}
                   timeFormat="HH:mm:ss.SSS"
                   placeholderText="Select a deadline date"
                 />
@@ -264,12 +176,12 @@ export default function CreateTaskComponent() {
                   className="form-control"
                   placeholder="ex. John Smith"
                   name="reportTo"
-                  value={details.reportTo}
+                  value={task.details.reportTo}
                   onChange={onInputChange}
                 />
-                {reportToError && (
+                {errors.reportTo && (
                   <div className="alert alert-danger" role="alert">
-                    {reportToError}
+                    {errors.reportTo}
                   </div>
                 )}
                 <br />
@@ -281,13 +193,13 @@ export default function CreateTaskComponent() {
                   className="form-control"
                   placeholder="example@example.com"
                   name="uplineEmail"
-                  value={details.uplineEmail}
+                  value={task.details.uplineEmail}
                   onChange={onInputChange}
                   title="Enter a valid email address"
                 />
-                {uplineEmailError && (
+                {errors.uplineEmail && (
                   <div className="alert alert-danger" role="alert">
-                    {uplineEmailError}
+                    {errors.uplineEmail}
                   </div>
                 )}
                 <br />
@@ -303,16 +215,16 @@ export default function CreateTaskComponent() {
                     className="form-control"
                     placeholder="Enter polish 9-digits number"
                     name="uplineMobile"
-                    value={details.uplineMobile}
+                    value={task.details.uplineMobile}
                     onChange={onInputChange}
                     maxLength={9}
                     pattern="[0-9]*"
                     title="Mobile number must be 9 digits"
                   />
                 </div>
-                {uplineMobileError && (
+                {errors.uplineMobile && (
                   <div className="alert alert-danger" role="alert">
-                    {uplineMobileError}
+                    {errors.uplineMobile}
                   </div>
                 )}
               </div>
