@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import DateTime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
-import axios from "axios";
+import { validateField } from "../utils/ValidationUtils";
+import TaskService from "../services/TaskService";
 
 export default function UpdateTaskComponent() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  useEffect(() => {
-    loadUser();
-  }, []);
-
   const [task, setTask] = useState({
-    publicId: "",
     title: "",
     content: "",
     isDone: "",
@@ -28,22 +24,60 @@ export default function UpdateTaskComponent() {
     priority: "",
   });
 
-  const { publicId, title, content, isDone, details, priority } = task;
-  const {
-    publicId: detailsPublicId,
-    created,
-    deadLine,
-    reportTo,
-    uplineEmail,
-    uplineMobile,
-  } = details;
+  const [errors, setErrors] = useState({
+    titleError: "",
+    contentError: "",
+    reportToError: "",
+    uplineEmailError: "",
+    uplineMobileError: "",
+  });
+
+  useEffect(() => {
+    loadTask();
+  }, []);
+
+  const loadTask = async () => {
+    try {
+      const response = await TaskService.getTask(id);
+      const taskData = response.data;
+      setTask(taskData);
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  };
+
+  const validateForm = () => {
+    const { title, content, details } = task;
+    const { reportTo, uplineEmail, uplineMobile } = details;
+
+    const titleError = validateField("title", title);
+    const contentError = validateField("content", content);
+    const reportToError = validateField("reportTo", reportTo);
+    const uplineEmailError = validateField("uplineEmail", uplineEmail);
+    const uplineMobileError = validateField("uplineMobile", uplineMobile);
+
+    setErrors({
+      titleError,
+      contentError,
+      reportToError,
+      uplineEmailError,
+      uplineMobileError,
+    });
+
+    return (
+      !titleError &&
+      !contentError &&
+      !reportToError &&
+      !uplineEmailError &&
+      !uplineMobileError
+    );
+  };
 
   const onInputChange = (e) => {
     const { name, value } = e.target;
 
     if (name === "deadLine" && value) {
       let deadlineParsed = value.toISOString();
-      console.log(deadlineParsed);
       setTask((prevTask) => ({
         ...prevTask,
         details: {
@@ -65,13 +99,17 @@ export default function UpdateTaskComponent() {
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    await axios.put(`http://localhost:8080/api/tasks/${id}`, task);
-    navigate("/");
-  };
 
-  const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8080/api/tasks/${id}`);
-    setTask(result.data);
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      await TaskService.updateTask(id, task);
+      navigate("/");
+    } catch (error) {
+      console.log("Error:", error);
+    }
   };
 
   return (
@@ -86,36 +124,59 @@ export default function UpdateTaskComponent() {
                   Title
                 </label>
                 <input
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="Enter the title"
                   name="title"
-                  value={title}
-                  onChange={(e) => onInputChange(e)}
+                  value={task.title}
+                  onChange={onInputChange}
                 />
+                {errors.titleError && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.titleError}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="Content" className="form-label">
                   Content
                 </label>
                 <textarea
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="Enter the content"
                   name="content"
                   rows={2}
                   cols={50}
-                  value={content}
-                  onChange={(e) => onInputChange(e)}
+                  value={task.content}
+                  onChange={onInputChange}
                 />
+                {errors.contentError && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.contentError}
+                  </div>
+                )}
+                <br />
+                <label htmlFor="Progress" className="form-label">
+                  Progress
+                </label>
+                <select
+                  className="form-control"
+                  value={task.isDone.toString()}
+                  name="isDone"
+                  onChange={onInputChange}
+                >
+                  <option value="false">Not Completed</option>
+                  <option value="true">Completed</option>
+                </select>
                 <br />
                 <label htmlFor="Priority" className="form-label">
                   Priority
                 </label>
                 <select
                   className="form-control"
-                  value={priority}
+                  value={task.priority}
                   name="priority"
-                  onChange={(e) => onInputChange(e)}
+                  onChange={onInputChange}
                 >
                   <option value="HIGH">HIGH</option>
                   <option value="MEDIUM">MEDIUM</option>
@@ -128,39 +189,55 @@ export default function UpdateTaskComponent() {
                 <br />
                 <DateTime
                   onChange={(date) =>
-                    onInputChange({ target: { name: "deadLine", value: date } })
+                    setTask((prevTask) => ({
+                      ...prevTask,
+                      details: {
+                        ...prevTask.details,
+                        deadLine: date,
+                      },
+                    }))
                   }
                   dateFormat="YYYY-MM-DD"
-                  value={deadLine}
+                  value={task.details.deadLine}
                   timeFormat="HH:mm:ss.SSS"
                   placeholderText="Select a deadline date"
+                  isValidDate={(current) => current.isAfter(DateTime.moment())}
                 />
                 <br />
                 <label htmlFor="ReportTo" className="form-label">
                   Report to
                 </label>
                 <input
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="ex. John Smith"
                   name="reportTo"
-                  value={reportTo}
-                  onChange={(e) => onInputChange(e)}
+                  value={task.details.reportTo}
+                  onChange={onInputChange}
                 />
+                {errors.reportToError && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.reportToError}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="ReportToEmail" className="form-label">
                   Report to email
                 </label>
                 <input
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="example@example.com"
                   name="uplineEmail"
-                  value={uplineEmail}
-                  onChange={(e) => onInputChange(e)}
-                  pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                  value={task.details.uplineEmail}
+                  onChange={onInputChange}
                   title="Enter a valid email address"
                 />
+                {errors.uplineEmailError && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.uplineEmailError}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="ReportToMobile" className="form-label">
                   Report to mobile
@@ -170,17 +247,22 @@ export default function UpdateTaskComponent() {
                     <span className="input-group-text">+48</span>
                   </div>
                   <input
-                    type={"text"}
+                    type="text"
                     className="form-control"
                     placeholder="Enter polish 9-digits number"
                     name="uplineMobile"
-                    value={uplineMobile}
-                    onChange={(e) => onInputChange(e)}
+                    value={task.details.uplineMobile}
+                    onChange={onInputChange}
                     maxLength={9}
                     pattern="[0-9]*"
                     title="Mobile number must be 9 digits"
                   />
                 </div>
+                {errors.uplineMobileError && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.uplineMobileError}
+                  </div>
+                )}
               </div>
               <div className="text-center">
                 <button type="submit" className="btn btn-outline-primary">

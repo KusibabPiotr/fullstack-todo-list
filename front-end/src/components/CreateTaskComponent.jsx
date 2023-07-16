@@ -1,35 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import DateTime from "react-datetime";
 import { v4 as uuidv4 } from "uuid";
 import { Link } from "react-router-dom";
 import TaskService from "../services/TaskService";
-import DateTime from "react-datetime";
+import { validateField } from "../utils/ValidationUtils";
 
 export default function CreateTaskComponent() {
   const navigate = useNavigate();
   const todaysDate = new Date();
-  const [field1UUID, setField1UUID] = useState("");
-  const [field2UUID, setField2UUID] = useState("");
-
-  useEffect(() => {
-    const newField1UUID = uuidv4();
-    const newField2UUID = uuidv4();
-
-    setField1UUID(newField1UUID);
-    setField2UUID(newField2UUID);
-
-    setTask((prevTask) => ({
-      ...prevTask,
-      publicId: newField1UUID,
-      details: {
-        ...prevTask.details,
-        publicId: newField2UUID,
-      },
-    }));
-  }, []);
-
   const [task, setTask] = useState({
     publicId: "",
     title: "",
@@ -45,44 +24,68 @@ export default function CreateTaskComponent() {
     },
     priority: "HIGH",
   });
+  const [errors, setErrors] = useState({});
 
-  const { publicId, title, content, isDone, details, priority } = task;
-  const {
-    publicId: detailsPublicId,
-    created,
-    deadLine,
-    reportTo,
-    uplineEmail,
-    uplineMobile,
-  } = details;
+  useEffect(() => {
+    const field1UUID = uuidv4();
+    const field2UUID = uuidv4();
+
+    setTask((prevTask) => ({
+      ...prevTask,
+      publicId: field1UUID,
+      details: {
+        ...prevTask.details,
+        publicId: field2UUID,
+      },
+    }));
+  }, []);
 
   const onInputChange = (e) => {
     const { name, value } = e.target;
+    const validationError = validateField(name, value);
 
-    if (name === "deadLine" && value) {
-      let deadlineParsed = value.toISOString();
-      console.log(deadlineParsed);
-      setTask((prevTask) => ({
-        ...prevTask,
-        details: {
-          ...prevTask.details,
-          [name]: deadlineParsed,
-        },
-      }));
-    } else {
-      setTask((prevTask) => ({
-        ...prevTask,
+    setTask((prevTask) => ({
+      ...prevTask,
+      [name]: value,
+      details: {
+        ...prevTask.details,
         [name]: value,
-        details: {
-          ...prevTask.details,
-          [name]: value,
-        },
-      }));
-    }
+      },
+    }));
+
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: validationError,
+    }));
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
+
+    const { title, content, details } = task;
+    const titleError = validateField("title", title);
+    const contentError = validateField("content", content);
+    const reportToError = validateField("reportTo", details.reportTo);
+    const uplineEmailError = validateField("uplineEmail", details.uplineEmail);
+    const uplineMobileError = validateField(
+      "uplineMobile",
+      details.uplineMobile
+    );
+
+    const newErrors = {
+      title: titleError,
+      content: contentError,
+      reportTo: reportToError,
+      uplineEmail: uplineEmailError,
+      uplineMobile: uplineMobileError,
+    };
+
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).some((error) => error)) {
+      return;
+    }
+
     await TaskService.createTask(task);
     navigate("/");
   };
@@ -93,42 +96,52 @@ export default function CreateTaskComponent() {
         <div className="table-responsive" style={{ marginBottom: "80px" }}>
           <div className="col-md-6 offset-md-3 boarder rounded p-1 mt-2 shadow">
             <h2 className="text-center m-4">Create task</h2>
-            <form onSubmit={(e) => onSubmit(e)}>
+            <form onSubmit={onSubmit}>
               <div className="mb-3">
                 <label htmlFor="Title" className="form-label">
                   Title
                 </label>
                 <input
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="Enter the title"
                   name="title"
-                  value={title}
-                  onChange={(e) => onInputChange(e)}
+                  value={task.title}
+                  onChange={onInputChange}
                 />
+                {errors.title && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.title}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="Content" className="form-label">
                   Content
                 </label>
                 <textarea
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="Enter the content"
                   name="content"
                   rows={2}
                   cols={50}
-                  value={content}
-                  onChange={(e) => onInputChange(e)}
+                  value={task.content}
+                  onChange={onInputChange}
                 />
+                {errors.content && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.content}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="Priority" className="form-label">
                   Priority
                 </label>
                 <select
                   className="form-control"
-                  value={priority}
+                  value={task.priority}
                   name="priority"
-                  onChange={(e) => onInputChange(e)}
+                  onChange={onInputChange}
                 >
                   <option value="HIGH">HIGH</option>
                   <option value="MEDIUM">MEDIUM</option>
@@ -141,39 +154,55 @@ export default function CreateTaskComponent() {
                 <br />
                 <DateTime
                   onChange={(date) =>
-                    onInputChange({ target: { name: "deadLine", value: date } })
+                    setTask((prevTask) => ({
+                      ...prevTask,
+                      details: {
+                        ...prevTask.details,
+                        deadLine: date,
+                      },
+                    }))
                   }
                   dateFormat="YYYY-MM-DD"
-                  value={deadLine}
+                  value={task.details.deadLine}
                   timeFormat="HH:mm:ss.SSS"
                   placeholderText="Select a deadline date"
+                  isValidDate={(current) => current.isAfter(DateTime.moment())}
                 />
                 <br />
                 <label htmlFor="ReportTo" className="form-label">
                   Report to
                 </label>
                 <input
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="ex. John Smith"
                   name="reportTo"
-                  value={reportTo}
-                  onChange={(e) => onInputChange(e)}
+                  value={task.details.reportTo}
+                  onChange={onInputChange}
                 />
+                {errors.reportTo && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.reportTo}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="ReportToEmail" className="form-label">
                   Report to email
                 </label>
                 <input
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="example@example.com"
                   name="uplineEmail"
-                  value={uplineEmail}
-                  onChange={(e) => onInputChange(e)}
-                  pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                  value={task.details.uplineEmail}
+                  onChange={onInputChange}
                   title="Enter a valid email address"
                 />
+                {errors.uplineEmail && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.uplineEmail}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="ReportToMobile" className="form-label">
                   Report to mobile
@@ -183,17 +212,22 @@ export default function CreateTaskComponent() {
                     <span className="input-group-text">+48</span>
                   </div>
                   <input
-                    type={"text"}
+                    type="text"
                     className="form-control"
                     placeholder="Enter polish 9-digits number"
                     name="uplineMobile"
-                    value={uplineMobile}
-                    onChange={(e) => onInputChange(e)}
+                    value={task.details.uplineMobile}
+                    onChange={onInputChange}
                     maxLength={9}
                     pattern="[0-9]*"
                     title="Mobile number must be 9 digits"
                   />
                 </div>
+                {errors.uplineMobile && (
+                  <div className="alert alert-danger" role="alert">
+                    {errors.uplineMobile}
+                  </div>
+                )}
               </div>
               <div className="text-center">
                 <button type="submit" className="btn btn-outline-primary">

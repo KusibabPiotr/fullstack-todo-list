@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import TaskService from "../services/TaskService";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import TaskService from "../services/TaskService";
 
 export default function ListTasksComponent() {
   const [tasks, setTasks] = useState([]);
@@ -72,8 +71,12 @@ export default function ListTasksComponent() {
   };
 
   const deleteTask = async (id) => {
-    await axios.delete(`http://localhost:8080/api/tasks/${id}`);
-    fetchTasks();
+    try {
+      await TaskService.deleteTask(id);
+      fetchTasks();
+    } catch (error) {
+      console.log("Error:", error);
+    }
   };
 
   return (
