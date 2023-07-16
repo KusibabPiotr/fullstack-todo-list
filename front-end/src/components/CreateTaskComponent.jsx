@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import TaskService from "../services/TaskService";
 import DateTime from "react-datetime";
 
-const CreateTaskComponent = () => {
+export default function CreateTaskComponent() {
   const navigate = useNavigate();
   const todaysDate = new Date();
   const [field1UUID, setField1UUID] = useState("");
@@ -330,6 +330,4 @@ const CreateTaskComponent = () => {
       </div>
     </div>
   );
-};
-
-export default CreateTaskComponent;
+}

@@ -7,6 +7,67 @@ import axios from "axios";
 export default function UpdateTaskComponent() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [details, setDetails] = useState({
+    publicId: "",
+    created: "",
+    deadLine: "",
+    reportTo: "",
+    uplineEmail: "",
+    uplineMobile: "",
+  });
+  const [titleError, setTitleError] = useState("");
+  const [contentError, setContentError] = useState("");
+  const [reportToError, setReportToError] = useState("");
+  const [uplineEmailError, setUplineEmailError] = useState("");
+  const [uplineMobileError, setUplineMobileError] = useState("");
+
+  const validateField = (fieldName, value) => {
+    switch (fieldName) {
+      case "title":
+        if (!value) {
+          return "Title is required";
+        }
+        return "";
+      case "content":
+        if (!value) {
+          return "Content is required";
+        }
+        return "";
+      case "reportTo":
+        if (!value) {
+          return "Report to is required";
+        }
+        return "";
+      case "uplineEmail":
+        if (!value) {
+          return "Email is required";
+        } else if (!isValidEmail(value)) {
+          return "Invalid email address";
+        }
+        return "";
+      case "uplineMobile":
+        if (!value) {
+          return "Mobile number is required";
+        } else if (!isValidPhoneNumber(value)) {
+          return "Invalid mobile number";
+        }
+        return "";
+      default:
+        return "";
+    }
+  };
+
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const isValidPhoneNumber = (phoneNumber) => {
+    const phoneNumberRegex = /^\d{9}$/;
+    return phoneNumberRegex.test(phoneNumber);
+  };
 
   useEffect(() => {
     loadUser();
@@ -28,18 +89,9 @@ export default function UpdateTaskComponent() {
     priority: "",
   });
 
-  const { publicId, title, content, isDone, details, priority } = task;
-  const {
-    publicId: detailsPublicId,
-    created,
-    deadLine,
-    reportTo,
-    uplineEmail,
-    uplineMobile,
-  } = details;
-
   const onInputChange = (e) => {
     const { name, value } = e.target;
+    const validationError = validateField(name, value);
 
     if (name === "deadLine" && value) {
       let deadlineParsed = value.toISOString();
@@ -61,16 +113,66 @@ export default function UpdateTaskComponent() {
         },
       }));
     }
+    if (name === "title") {
+      setTitle(value);
+      setTitleError(validationError);
+    } else if (name === "content") {
+      setContent(value);
+      setContentError(validationError);
+    } else if (name === "reportTo") {
+      setDetails((prevDetails) => ({
+        ...prevDetails,
+        reportTo: value,
+      }));
+      setReportToError(validationError);
+    } else if (name === "uplineEmail") {
+      setDetails((prevDetails) => ({
+        ...prevDetails,
+        uplineEmail: value,
+      }));
+      setUplineEmailError(validationError);
+    } else if (name === "uplineMobile") {
+      setDetails((prevDetails) => ({
+        ...prevDetails,
+        uplineMobile: value,
+      }));
+      setUplineMobileError(validationError);
+    }
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    const titleError = validateField("title", title);
+    const contentError = validateField("content", content);
+    const reportToError = validateField("reportTo", details.reportTo);
+    const uplineEmailError = validateField("uplineEmail", details.uplineEmail);
+    const uplineMobileError = validateField(
+      "uplineMobile",
+      details.uplineMobile
+    );
+
+    setTitleError(titleError);
+    setContentError(contentError);
+    setReportToError(reportToError);
+    setUplineEmailError(uplineEmailError);
+    setUplineMobileError(uplineMobileError);
+
+    if (
+      titleError ||
+      contentError ||
+      reportToError ||
+      uplineEmailError ||
+      uplineMobileError
+    ) {
+      return;
+    }
     await axios.put(`http://localhost:8080/api/tasks/${id}`, task);
     navigate("/");
   };
 
   const loadUser = async () => {
     const result = await axios.get(`http://localhost:8080/api/tasks/${id}`);
+
     setTask(result.data);
   };
 
@@ -86,36 +188,46 @@ export default function UpdateTaskComponent() {
                   Title
                 </label>
                 <input
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="Enter the title"
                   name="title"
-                  value={title}
-                  onChange={(e) => onInputChange(e)}
+                  value={task.title}
+                  onChange={onInputChange}
                 />
+                {titleError && (
+                  <div className="alert alert-danger" role="alert">
+                    {titleError}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="Content" className="form-label">
                   Content
                 </label>
                 <textarea
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="Enter the content"
                   name="content"
                   rows={2}
                   cols={50}
-                  value={content}
-                  onChange={(e) => onInputChange(e)}
+                  value={task.content}
+                  onChange={onInputChange}
                 />
+                {contentError && (
+                  <div className="alert alert-danger" role="alert">
+                    {contentError}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="Priority" className="form-label">
                   Priority
                 </label>
                 <select
                   className="form-control"
-                  value={priority}
+                  value={task.priority}
                   name="priority"
-                  onChange={(e) => onInputChange(e)}
+                  onChange={onInputChange}
                 >
                   <option value="HIGH">HIGH</option>
                   <option value="MEDIUM">MEDIUM</option>
@@ -128,10 +240,13 @@ export default function UpdateTaskComponent() {
                 <br />
                 <DateTime
                   onChange={(date) =>
-                    onInputChange({ target: { name: "deadLine", value: date } })
+                    setDetails((prevDetails) => ({
+                      ...prevDetails,
+                      deadLine: date,
+                    }))
                   }
                   dateFormat="YYYY-MM-DD"
-                  value={deadLine}
+                  value={task.details.deadLine}
                   timeFormat="HH:mm:ss.SSS"
                   placeholderText="Select a deadline date"
                 />
@@ -140,27 +255,36 @@ export default function UpdateTaskComponent() {
                   Report to
                 </label>
                 <input
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="ex. John Smith"
                   name="reportTo"
-                  value={reportTo}
-                  onChange={(e) => onInputChange(e)}
+                  value={task.details.reportTo}
+                  onChange={onInputChange}
                 />
+                {reportToError && (
+                  <div className="alert alert-danger" role="alert">
+                    {reportToError}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="ReportToEmail" className="form-label">
                   Report to email
                 </label>
                 <input
-                  type={"text"}
+                  type="text"
                   className="form-control"
                   placeholder="example@example.com"
                   name="uplineEmail"
-                  value={uplineEmail}
-                  onChange={(e) => onInputChange(e)}
-                  pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+                  value={task.details.uplineEmail}
+                  onChange={onInputChange}
                   title="Enter a valid email address"
                 />
+                {uplineEmailError && (
+                  <div className="alert alert-danger" role="alert">
+                    {uplineEmailError}
+                  </div>
+                )}
                 <br />
                 <label htmlFor="ReportToMobile" className="form-label">
                   Report to mobile
@@ -170,17 +294,22 @@ export default function UpdateTaskComponent() {
                     <span className="input-group-text">+48</span>
                   </div>
                   <input
-                    type={"text"}
+                    type="text"
                     className="form-control"
                     placeholder="Enter polish 9-digits number"
                     name="uplineMobile"
-                    value={uplineMobile}
-                    onChange={(e) => onInputChange(e)}
+                    value={task.details.uplineMobile}
+                    onChange={onInputChange}
                     maxLength={9}
                     pattern="[0-9]*"
                     title="Mobile number must be 9 digits"
                   />
                 </div>
+                {uplineMobileError && (
+                  <div className="alert alert-danger" role="alert">
+                    {uplineMobileError}
+                  </div>
+                )}
               </div>
               <div className="text-center">
                 <button type="submit" className="btn btn-outline-primary">
