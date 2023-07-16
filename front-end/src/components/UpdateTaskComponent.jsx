@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import DateTime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import axios from "axios";
@@ -8,28 +8,8 @@ import { validateField } from "../utils/ValidationUtils";
 export default function UpdateTaskComponent() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [details, setDetails] = useState({
-    publicId: "",
-    created: "",
-    deadLine: "",
-    reportTo: "",
-    uplineEmail: "",
-    uplineMobile: "",
-  });
-  const [titleError, setTitleError] = useState("");
-  const [contentError, setContentError] = useState("");
-  const [reportToError, setReportToError] = useState("");
-  const [uplineEmailError, setUplineEmailError] = useState("");
-  const [uplineMobileError, setUplineMobileError] = useState("");
-
-  useEffect(() => {
-    loadUser();
-  }, []);
 
   const [task, setTask] = useState({
-    publicId: "",
     title: "",
     content: "",
     isDone: "",
@@ -44,9 +24,57 @@ export default function UpdateTaskComponent() {
     priority: "",
   });
 
+  const [errors, setErrors] = useState({
+    titleError: "",
+    contentError: "",
+    reportToError: "",
+    uplineEmailError: "",
+    uplineMobileError: "",
+  });
+
+  useEffect(() => {
+    loadTask();
+  }, []);
+
+  const loadTask = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/tasks/${id}`);
+      const taskData = response.data;
+      setTask(taskData);
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  };
+
+  const validateForm = () => {
+    const { title, content, details } = task;
+    const { reportTo, uplineEmail, uplineMobile } = details;
+
+    const titleError = validateField("title", title);
+    const contentError = validateField("content", content);
+    const reportToError = validateField("reportTo", reportTo);
+    const uplineEmailError = validateField("uplineEmail", uplineEmail);
+    const uplineMobileError = validateField("uplineMobile", uplineMobile);
+
+    setErrors({
+      titleError,
+      contentError,
+      reportToError,
+      uplineEmailError,
+      uplineMobileError,
+    });
+
+    return (
+      !titleError &&
+      !contentError &&
+      !reportToError &&
+      !uplineEmailError &&
+      !uplineMobileError
+    );
+  };
+
   const onInputChange = (e) => {
     const { name, value } = e.target;
-    const validationError = validateField(name, value);
 
     if (name === "deadLine" && value) {
       let deadlineParsed = value.toISOString();
@@ -67,79 +95,21 @@ export default function UpdateTaskComponent() {
         },
       }));
     }
-    if (name === "title") {
-      setTitle(value);
-      setTitleError(validationError);
-    } else if (name === "content") {
-      setContent(value);
-      setContentError(validationError);
-    } else if (name === "reportTo") {
-      setDetails((prevDetails) => ({
-        ...prevDetails,
-        reportTo: value,
-      }));
-      setReportToError(validationError);
-    } else if (name === "uplineEmail") {
-      setDetails((prevDetails) => ({
-        ...prevDetails,
-        uplineEmail: value,
-      }));
-      setUplineEmailError(validationError);
-    } else if (name === "uplineMobile") {
-      setDetails((prevDetails) => ({
-        ...prevDetails,
-        uplineMobile: value,
-      }));
-      setUplineMobileError(validationError);
-    }
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    const titleError = validateField("title", task.title);
-    const contentError = validateField("content", task.content);
-    const reportToError = validateField("reportTo", task.details.reportTo);
-    const uplineEmailError = validateField(
-      "uplineEmail",
-      task.details.uplineEmail
-    );
-    const uplineMobileError = validateField(
-      "uplineMobile",
-      task.details.uplineMobile
-    );
 
-    setTitleError(titleError);
-    setContentError(contentError);
-    setReportToError(reportToError);
-    setUplineEmailError(uplineEmailError);
-    setUplineMobileError(uplineMobileError);
-
-    if (
-      titleError ||
-      contentError ||
-      reportToError ||
-      uplineEmailError ||
-      uplineMobileError
-    ) {
+    if (!validateForm()) {
       return;
     }
 
-    const updatedTask = {
-      ...task,
-      details: {
-        ...task.details,
-        deadLine: details.deadLine,
-      },
-    };
-
-    await axios.put(`http://localhost:8080/api/tasks/${id}`, updatedTask);
-    navigate("/");
-  };
-
-  const loadUser = async () => {
-    const result = await axios.get(`http://localhost:8080/api/tasks/${id}`);
-
-    setTask(result.data);
+    try {
+      await axios.put(`http://localhost:8080/api/tasks/${id}`, task);
+      navigate("/");
+    } catch (error) {
+      console.log("Error:", error);
+    }
   };
 
   return (
@@ -161,9 +131,9 @@ export default function UpdateTaskComponent() {
                   value={task.title}
                   onChange={onInputChange}
                 />
-                {titleError && (
+                {errors.titleError && (
                   <div className="alert alert-danger" role="alert">
-                    {titleError}
+                    {errors.titleError}
                   </div>
                 )}
                 <br />
@@ -180,9 +150,9 @@ export default function UpdateTaskComponent() {
                   value={task.content}
                   onChange={onInputChange}
                 />
-                {contentError && (
+                {errors.contentError && (
                   <div className="alert alert-danger" role="alert">
-                    {contentError}
+                    {errors.contentError}
                   </div>
                 )}
                 <br />
@@ -219,9 +189,12 @@ export default function UpdateTaskComponent() {
                 <br />
                 <DateTime
                   onChange={(date) =>
-                    setDetails((prevDetails) => ({
-                      ...prevDetails,
-                      deadLine: date,
+                    setTask((prevTask) => ({
+                      ...prevTask,
+                      details: {
+                        ...prevTask.details,
+                        deadLine: date,
+                      },
                     }))
                   }
                   dateFormat="YYYY-MM-DD"
@@ -241,9 +214,9 @@ export default function UpdateTaskComponent() {
                   value={task.details.reportTo}
                   onChange={onInputChange}
                 />
-                {reportToError && (
+                {errors.reportToError && (
                   <div className="alert alert-danger" role="alert">
-                    {reportToError}
+                    {errors.reportToError}
                   </div>
                 )}
                 <br />
@@ -259,9 +232,9 @@ export default function UpdateTaskComponent() {
                   onChange={onInputChange}
                   title="Enter a valid email address"
                 />
-                {uplineEmailError && (
+                {errors.uplineEmailError && (
                   <div className="alert alert-danger" role="alert">
-                    {uplineEmailError}
+                    {errors.uplineEmailError}
                   </div>
                 )}
                 <br />
@@ -284,9 +257,9 @@ export default function UpdateTaskComponent() {
                     title="Mobile number must be 9 digits"
                   />
                 </div>
-                {uplineMobileError && (
+                {errors.uplineMobileError && (
                   <div className="alert alert-danger" role="alert">
-                    {uplineMobileError}
+                    {errors.uplineMobileError}
                   </div>
                 )}
               </div>
