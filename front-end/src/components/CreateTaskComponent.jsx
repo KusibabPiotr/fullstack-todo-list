@@ -201,7 +201,9 @@ const CreateTaskComponent = () => {
                   onChange={onInputChange}
                 />
                 {titleError && (
-                  <div className="error-message">{titleError}</div>
+                  <div className="alert alert-danger" role="alert">
+                    {titleError}
+                  </div>
                 )}
                 <br />
                 <label htmlFor="Content" className="form-label">
@@ -218,7 +220,9 @@ const CreateTaskComponent = () => {
                   onChange={onInputChange}
                 />
                 {contentError && (
-                  <div className="error-message">{contentError}</div>
+                  <div className="alert alert-danger" role="alert">
+                    {contentError}
+                  </div>
                 )}
                 <br />
                 <label htmlFor="Priority" className="form-label">
@@ -264,7 +268,9 @@ const CreateTaskComponent = () => {
                   onChange={onInputChange}
                 />
                 {reportToError && (
-                  <div className="error-message">{reportToError}</div>
+                  <div className="alert alert-danger" role="alert">
+                    {reportToError}
+                  </div>
                 )}
                 <br />
                 <label htmlFor="ReportToEmail" className="form-label">
@@ -280,7 +286,9 @@ const CreateTaskComponent = () => {
                   title="Enter a valid email address"
                 />
                 {uplineEmailError && (
-                  <div className="error-message">{uplineEmailError}</div>
+                  <div className="alert alert-danger" role="alert">
+                    {uplineEmailError}
+                  </div>
                 )}
                 <br />
                 <label htmlFor="ReportToMobile" className="form-label">
@@ -303,7 +311,9 @@ const CreateTaskComponent = () => {
                   />
                 </div>
                 {uplineMobileError && (
-                  <div className="error-message">{uplineMobileError}</div>
+                  <div className="alert alert-danger" role="alert">
+                    {uplineMobileError}
+                  </div>
                 )}
               </div>
               <div className="text-center">
