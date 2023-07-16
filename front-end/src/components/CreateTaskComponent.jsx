@@ -166,6 +166,7 @@ export default function CreateTaskComponent() {
                   value={task.details.deadLine}
                   timeFormat="HH:mm:ss.SSS"
                   placeholderText="Select a deadline date"
+                  isValidDate={(current) => current.isAfter(DateTime.moment())}
                 />
                 <br />
                 <label htmlFor="ReportTo" className="form-label">

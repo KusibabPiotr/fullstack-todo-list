@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import DateTime from "react-datetime";
 import "react-datetime/css/react-datetime.css";
-import axios from "axios";
 import { validateField } from "../utils/ValidationUtils";
+import TaskService from "../services/TaskService";
 
 export default function UpdateTaskComponent() {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export default function UpdateTaskComponent() {
 
   const loadTask = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/tasks/${id}`);
+      const response = await TaskService.getTask(id);
       const taskData = response.data;
       setTask(taskData);
     } catch (error) {
@@ -105,7 +105,7 @@ export default function UpdateTaskComponent() {
     }
 
     try {
-      await axios.put(`http://localhost:8080/api/tasks/${id}`, task);
+      await TaskService.updateTask(id, task);
       navigate("/");
     } catch (error) {
       console.log("Error:", error);
@@ -201,6 +201,7 @@ export default function UpdateTaskComponent() {
                   value={task.details.deadLine}
                   timeFormat="HH:mm:ss.SSS"
                   placeholderText="Select a deadline date"
+                  isValidDate={(current) => current.isAfter(DateTime.moment())}
                 />
                 <br />
                 <label htmlFor="ReportTo" className="form-label">
